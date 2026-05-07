@@ -1003,6 +1003,10 @@ function loadMainScript()
          loadstring(game:HttpGet("https://pastebin.com/raw/9fFu43FF"))()
     end)
 
+sectionFun:Button("汉化", function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Wlzhmaa/UWU/refs/heads/main/Chinese%20translation"))()
+    end)
+
     sectionCommon:Button("工具挂", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Bebo-Mods/BeboScripts/main/StandAwekening.lua"))()
     end)
@@ -1017,6 +1021,10 @@ function loadMainScript()
     sectionFun:Button("M 47", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/sinret/rbxscript.com-scripts-reuploads-/main/ak47", true))()
     end)
+
+sectionFun:Button("动作", function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-7yd7-I-Emote-Script-48024"))()
+end)
 
     sectionFun:Button("电脑键盘", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/advxzivhsjjdhxhsidifvsh/mobkeyboard/main/main.txt", true))()
