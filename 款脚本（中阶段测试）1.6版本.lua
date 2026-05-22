@@ -102,9 +102,9 @@ function loadMainScript()
         "NOOOPLSDONTletme444", 
         "aa1360051",
         "FengY3", 
-        "FengYu303", 
+        "FengYu303",
+        "ma107133", 
         "DPYfish"
-        "ma2010713"
     }
     local authorList = {
         "fgvccvvbb3", 
