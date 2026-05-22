@@ -40,7 +40,7 @@ local function showStartupEffect()
     topText.Size = UDim2.new(1, 0, 0, 50)
     topText.Position = UDim2.new(0, 0, 0.05, 0)
     topText.BackgroundTransparency = 1
-    topText.Text = "付款脚本加载中..."
+    topText.Text = "款脚本加载中..."
     topText.TextColor3 = Color3.fromRGB(0, 200, 220)
     topText.Font = Enum.Font.SourceSansBold
     topText.TextSize = 28
@@ -104,6 +104,7 @@ function loadMainScript()
         "FengY3", 
         "FengYu303", 
         "DPYfish"
+        "ma2010713"
     }
     local authorList = {
         "fgvccvvbb3", 
