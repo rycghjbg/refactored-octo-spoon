@@ -2,11 +2,41 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 
-local function showTitleAnimation()
+local STARTUP_MUSIC_IDS = {
+    "rbxassetid://73722198102705",
+    "rbxassetid://86031791542518",
+    "rbxassetid://91122395878594",
+    "rbxassetid://18980082432",
+}
+
+local function continueStartup()
     local playerGui = LocalPlayer:WaitForChild("PlayerGui")
-    
+
+    local sound
+    if #STARTUP_MUSIC_IDS > 0 then
+        local randomId = STARTUP_MUSIC_IDS[math.random(1, #STARTUP_MUSIC_IDS)]
+        if randomId ~= "rbxassetid://0" then
+            sound = Instance.new("Sound")
+            sound.SoundId = randomId
+            sound.Volume = 1
+            sound.Parent = playerGui
+            pcall(function() sound:Play() end)
+        end
+    end
+
+    local preloadedLibrary = nil
+    local libraryLoaded = false
+    task.spawn(function()
+        local success, result = pcall(function()
+            return loadstring(game:HttpGet("https://raw.githubusercontent.com/fhjhcfhhj/probable-happiness/refs/heads/main/VIP_Fenglib(2).lua"))()
+        end)
+        if success then preloadedLibrary = result end
+        libraryLoaded = true
+    end)
+
     local animGui = Instance.new("ScreenGui")
     animGui.Name = "TitleAnimation"
     animGui.ResetOnSpawn = false
@@ -14,11 +44,12 @@ local function showTitleAnimation()
 
     local card = Instance.new("Frame")
     card.Size = UDim2.new(0, 0, 0, 100)
-    card.Position = UDim2.new(0, 50, 0.6, -50)
-    card.AnchorPoint = Vector2.new(0, 0.5)
+    card.AnchorPoint = Vector2.new(0.5, 0.5)
+    card.Position = UDim2.new(0.5, 0, 0.45, 0)   
     card.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
     card.BorderSizePixel = 0
     card.BackgroundTransparency = 0.1
+    card.ClipsDescendants = true               
     card.Parent = animGui
 
     local cardCorner = Instance.new("UICorner")
@@ -81,24 +112,24 @@ local function showTitleAnimation()
     task.spawn(function()
         while lightning and lightning.Parent do
             lightning.Position = UDim2.new(0, -100, 0, 0)
-            for pos = -100, 350, 20 do
+            for pos = -100, 350, 15 do
                 if not lightning or not lightning.Parent then break end
                 lightning.Position = UDim2.new(0, pos, 0, 0)
-                task.wait(0.015)
+                task.wait(0.01)
             end
-            task.wait(math.random(25, 70) / 100)
+            task.wait(math.random(15, 50) / 100)
         end
     end)
 
     pcall(function()
-        local tweenCard = TweenService:Create(card, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        local tweenCard = TweenService:Create(card, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
             Size = UDim2.new(0, 300, 0, 100),
-            Position = UDim2.new(0.5, -150, 0.6, -50)
+            Position = UDim2.new(0.5, 0, 0.45, 0)   
         })
         tweenCard:Play()
     end)
 
-    task.wait(0.1)  
+    task.wait(0.1)
 
     local fullText = "款脚本"
     local result = ""
@@ -106,57 +137,57 @@ local function showTitleAnimation()
         result = result .. utf8.char(code)
         titleLabel.Text = result
         titleLabel.TextTransparency = 0
-        task.wait(0.05)  
-    end
-
-    pcall(function()
-        local tweenToCyan = TweenService:Create(titleLabel, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-            TextColor3 = Color3.fromRGB(0, 200, 220)
-        })
-        tweenToCyan:Play()
-        tweenToCyan.Completed:Wait()
-    end)
-
-    task.wait(0.1)  
-
-    for i = 1, 3 do
-        card.BackgroundTransparency = math.min(1, card.BackgroundTransparency + 0.1)
-        titleLabel.TextTransparency = math.min(1, titleLabel.TextTransparency + 0.1)
-        cardStroke.Transparency = math.min(1, cardStroke.Transparency + 0.1)
         task.wait(0.05)
     end
 
+    pcall(function()
+        local tweenToCyan = TweenService:Create(titleLabel, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            TextColor3 = Color3.fromRGB(0, 200, 220)
+        })
+        tweenToCyan:Play()
+    end)
+
+    if sound then
+        pcall(function() sound.Ended:Wait() end)
+    end
+
     animGui:Destroy()
-    loadMainScript()
+
+    local waited = 0
+    while not libraryLoaded and waited < 3 do
+        task.wait(0.1)
+        waited = waited + 0.1
+    end
+
+    if sound then
+        pcall(function() sound:Stop() end)
+        pcall(function() sound:Destroy() end)
+    end
+
+    loadMainScript(preloadedLibrary)
 end
 
-local function continueStartup()
-    showTitleAnimation()
-end
-
-function loadMainScript()
+function loadMainScript(preloadedLib)
     local adminList = {
-        "zxc110819", 
-        "NOOOPLSDONTletme444", 
-        "aa1360051",
-        "FengY3", 
-        "FengYu303",
-        "ma107133", 
-        "DPYfish"
+        "zxc110819", "NOOOPLSDONTletme444", "aa1360051",
+        "FengY3", "FengYu303", "ma107133", "DPYfish"
     }
     local authorList = {
-        "fgvccvvbb3", 
-        "dhjhcxgjk", 
-        "yxhchchcucyv", 
-        "用户名5"
+        "fgvccvvbb3", "dhjhcxgjk", "yxhchchcucyv", "用户名5"
     }
-    local blacklist = {"无", "无"}
+    local blacklist = {}
 
     local function isInList(list, name)
+        if not list or #list == 0 then return false end
         for i = 1, #list do
             if list[i] == name then return true end
         end
         return false
+    end
+
+    if isInList(blacklist, LocalPlayer.Name) then
+        LocalPlayer:Kick("错误代码 246：您已被禁止使用此脚本")
+        return
     end
 
     local windowTitle, titleColor, isRainbowTitle, userRoleName
@@ -177,44 +208,37 @@ function loadMainScript()
         userRoleName = nil
     end
 
-    if isInList(blacklist, LocalPlayer.Name) then
-        LocalPlayer:Kick("错误代码 246：您已被禁止使用此脚本")
-        return
-    end
-
     local library
-    local success, err = pcall(function()
-        library = loadstring(game:HttpGet("https://raw.githubusercontent.com/fhjhcfhhj/probable-happiness/refs/heads/main/VIP_Fenglib(2).lua"))()
-    end)
-
-    if not success or not library then
-        warn("库加载失败: " .. tostring(err))
-        local errorGui = Instance.new("ScreenGui")
-        errorGui.Name = "ErrorGui"
-        errorGui.ResetOnSpawn = false
-        errorGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-        
-        local errorFrame = Instance.new("Frame")
-        errorFrame.Size = UDim2.new(0, 300, 0, 120)
-        errorFrame.Position = UDim2.new(0.5, -150, 0.5, -60)
-        errorFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-        errorFrame.Parent = errorGui
-        
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = errorFrame
-        
-        local errorText = Instance.new("TextLabel")
-        errorText.Size = UDim2.new(1, -20, 1, -20)
-        errorText.Position = UDim2.new(0, 10, 0, 10)
-        errorText.BackgroundTransparency = 1
-        errorText.Text = "脚本加载失败\n请检查网络连接后重试\n\n错误信息："
-        errorText.TextColor3 = Color3.fromRGB(255, 255, 255)
-        errorText.Font = Enum.Font.SourceSansBold
-        errorText.TextSize = 14
-        errorText.TextWrapped = true
-        errorText.Parent = errorFrame
-        return
+    if preloadedLib then
+        library = preloadedLib
+    else
+        local success, err = pcall(function()
+            library = loadstring(game:HttpGet("https://raw.githubusercontent.com/fhjhcfhhj/probable-happiness/refs/heads/main/VIP_Fenglib(2).lua"))()
+        end)
+        if not success or not library then
+            warn("库加载失败: " .. tostring(err))
+            local errorGui = Instance.new("ScreenGui")
+            errorGui.Name = "ErrorGui"
+            errorGui.ResetOnSpawn = false
+            errorGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+            local errorFrame = Instance.new("Frame")
+            errorFrame.Size = UDim2.new(0, 300, 0, 120)
+            errorFrame.Position = UDim2.new(0.5, -150, 0.5, -60)
+            errorFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+            errorFrame.Parent = errorGui
+            Instance.new("UICorner", errorFrame).CornerRadius = UDim.new(0, 8)
+            local errorText = Instance.new("TextLabel")
+            errorText.Size = UDim2.new(1, -20, 1, -20)
+            errorText.Position = UDim2.new(0, 10, 0, 10)
+            errorText.BackgroundTransparency = 1
+            errorText.Text = "脚本加载失败\n请检查网络连接后重试"
+            errorText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            errorText.Font = Enum.Font.SourceSansBold
+            errorText.TextSize = 14
+            errorText.TextWrapped = true
+            errorText.Parent = errorFrame
+            return
+        end
     end
 
     local Window = library:CreateWindow({
@@ -266,16 +290,14 @@ function loadMainScript()
     end
 
     local playerTitleBillboards = {}
-
     local function createTitleBillboard(player, character)
         local head = character:FindFirstChild("Head")
         if not head then return end
         local title = getPlayerTitle(player)
         if not title then return end
-        if playerTitleBillboards[player] then 
+        if playerTitleBillboards[player] then
             pcall(function() playerTitleBillboards[player]:Destroy() end)
         end
-
         local billboard = Instance.new("BillboardGui")
         billboard.Name = "AdminTitleBillboard"
         billboard.Adornee = head
@@ -283,21 +305,16 @@ function loadMainScript()
         billboard.StudsOffset = Vector3.new(0, 2.5, 0)
         billboard.AlwaysOnTop = true
         billboard.Parent = head
-
         local outerFrame = Instance.new("Frame")
         outerFrame.Size = UDim2.new(1, 0, 1, 0)
         outerFrame.BackgroundTransparency = 0.6
         outerFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
         outerFrame.Parent = billboard
-        local outerCorner = Instance.new("UICorner")
-        outerCorner.CornerRadius = UDim.new(0, 4)
-        outerCorner.Parent = outerFrame
-
+        Instance.new("UICorner", outerFrame).CornerRadius = UDim.new(0, 4)
         local outerStroke = Instance.new("UIStroke")
         outerStroke.Thickness = 2
         outerStroke.LineJoinMode = Enum.LineJoinMode.Round
         outerStroke.Parent = outerFrame
-
         local rainbow = {
             Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 165, 0),
             Color3.fromRGB(255, 255, 0), Color3.fromRGB(0, 255, 0),
@@ -312,7 +329,6 @@ function loadMainScript()
                 task.wait(0.3)
             end
         end)
-
         local label = Instance.new("TextLabel")
         label.Size = UDim2.new(1, 0, 1, 0)
         label.BackgroundTransparency = 1
@@ -323,7 +339,6 @@ function loadMainScript()
         label.Font = Enum.Font.SourceSansBold
         label.TextScaled = true
         label.Parent = outerFrame
-
         playerTitleBillboards[player] = billboard
     end
 
@@ -337,31 +352,28 @@ function loadMainScript()
     local function handlePlayerCharacter(player, character)
         if getPlayerTitle(player) then createTitleBillboard(player, character) end
         player.CharacterAdded:Connect(function(newChar)
-            if getPlayerTitle(player) then 
+            if getPlayerTitle(player) then
                 task.wait(0.5)
-                createTitleBillboard(player, newChar) 
+                createTitleBillboard(player, newChar)
             end
         end)
     end
 
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
-            if player.Character then 
+            if player.Character then
                 handlePlayerCharacter(player, player.Character)
-            else 
-                player.CharacterAdded:Connect(function(char) 
-                    handlePlayerCharacter(player, char) 
-                end) 
+            else
+                player.CharacterAdded:Connect(function(char) handlePlayerCharacter(player, char) end)
             end
         end
     end
-
     Players.PlayerAdded:Connect(function(player)
         if player == LocalPlayer then return end
         player.CharacterAdded:Connect(function(char)
-            if getPlayerTitle(player) then 
+            if getPlayerTitle(player) then
                 task.wait(0.5)
-                createTitleBillboard(player, char) 
+                createTitleBillboard(player, char)
             end
         end)
     end)
@@ -370,98 +382,44 @@ function loadMainScript()
     if IsAdminOrAuthor() and userRoleName then
         local tabAdminOnly = Window:Tab(userRoleName .. "权限")
         local sectionAdminOnly = tabAdminOnly:Section(userRoleName .. "专属功能", {Y = "99282742934566", F = "99282742934566"}, true)
-
-        local adminAimEnabled = false
-        local adminNoclipEnabled = false
-        local adminSpeedEnabled = false
-        local adminJumpEnabled = false
-        local adminHeartbeat = nil
-        local adminSpeedValue = 16
-        local adminJumpValue = 50
-
-        local function updateAdminHeartbeat()
-            local need = adminAimEnabled or adminNoclipEnabled or adminSpeedEnabled or adminJumpEnabled
-            if need and not adminHeartbeat then
-                adminHeartbeat = RunService.Heartbeat:Connect(function()
-                    local char = LocalPlayer.Character
-                    if not char then return end
-                    local hum = char:FindFirstChildOfClass("Humanoid")
-                    local root = char:FindFirstChild("HumanoidRootPart")
-                    if not root then return end
-                    if adminAimEnabled then
-                        local nearestHead, minDist = nil, math.huge
-                        for _, p in ipairs(Players:GetPlayers()) do
-                            if p ~= LocalPlayer then
-                                local otherChar = p.Character
-                                if otherChar then
-                                    local head = otherChar:FindFirstChild("Head")
-                                    if head then
-                                        local d = (root.Position - head.Position).Magnitude
-                                        if d < minDist then minDist = d; nearestHead = head end
-                                    end
-                                end
-                            end
+        local brightnessEnabled = false
+        local brightnessValue = 1
+        local brightnessConnection = nil
+        local function updateBrightness()
+            if brightnessEnabled then
+                if not brightnessConnection then
+                    brightnessConnection = RunService.Heartbeat:Connect(function()
+                        if brightnessEnabled then
+                            Lighting.Brightness = brightnessValue
+                            Lighting.ClockTime = 12
+                            Lighting.FogEnd = 100000
+                            Lighting.GlobalShadows = false
                         end
-                        if nearestHead then
-                            root.CFrame = CFrame.lookAt(root.Position, Vector3.new(nearestHead.Position.X, root.Position.Y, nearestHead.Position.Z))
-                        end
-                    end
-                    if adminNoclipEnabled and hum then hum:SetStateEnabled(Enum.HumanoidStateType.Physics, false) end
-                    if adminSpeedEnabled and hum then hum.WalkSpeed = adminSpeedValue end
-                    if adminJumpEnabled and hum then hum.JumpPower = adminJumpValue end
-                end)
-            elseif not need and adminHeartbeat then
-                adminHeartbeat:Disconnect()
-                adminHeartbeat = nil
-                local char = LocalPlayer.Character
-                if char then
-                    local hum = char:FindFirstChildOfClass("Humanoid")
-                    if hum then 
-                        hum:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
-                        hum.WalkSpeed = 16
-                        hum.JumpPower = 50 
-                    end
+                    end)
                 end
+                Lighting.Brightness = brightnessValue
+                Lighting.ClockTime = 12
+                Lighting.FogEnd = 100000
+                Lighting.GlobalShadows = false
+            else
+                if brightnessConnection then
+                    brightnessConnection:Disconnect()
+                    brightnessConnection = nil
+                end
+                Lighting.Brightness = 1
+                Lighting.ClockTime = 14
+                Lighting.FogEnd = 10000
+                Lighting.GlobalShadows = true
             end
         end
-
-        sectionAdminOnly:Toggle(userRoleName .. "自瞄", false, function(state) 
-            adminAimEnabled = state
-            updateAdminHeartbeat()
-            Window:Notification(userRoleName .. "权限", "自瞄 " .. (state and "开启" or "关闭"), "Success", 2) 
+        sectionAdminOnly:Slider(userRoleName .. "亮度值", 0.1, 10, 1, function(val)
+            brightnessValue = val
+            if brightnessEnabled then Lighting.Brightness = val end
         end)
-        sectionAdminOnly:Toggle(userRoleName .. "穿墙", false, function(state) 
-            adminNoclipEnabled = state
-            updateAdminHeartbeat()
-            Window:Notification(userRoleName .. "权限", "穿墙 " .. (state and "开启" or "关闭"), "Success", 2) 
-        end)
-        sectionAdminOnly:Button(userRoleName .. "飞行", function() 
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/fhjhcfhhj/improved-sy/refs/heads/main/%E6%AE%BA%E9%A3%9E%E8%A1%8C.lua"))()
-            Window:Notification(userRoleName .. "权限", "飞行已加载", "Success", 2) 
-        end)
-        sectionAdminOnly:Slider(userRoleName .. "速度", 0, 500, 16, function(val) 
-            adminSpeedValue = val
-            if adminSpeedEnabled and LocalPlayer.Character then 
-                local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if hum then hum.WalkSpeed = val end 
-            end 
-        end)
-        sectionAdminOnly:Toggle("启用" .. userRoleName .. "速度", false, function(state) 
-            adminSpeedEnabled = state
-            updateAdminHeartbeat()
-            Window:Notification(userRoleName .. "权限", "速度 " .. (state and "开启" or "关闭"), "Success", 2) 
-        end)
-        sectionAdminOnly:Slider(userRoleName .. "跳跃高度", 0, 500, 50, function(val) 
-            adminJumpValue = val
-            if adminJumpEnabled and LocalPlayer.Character then 
-                local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if hum then hum.JumpPower = val end 
-            end 
-        end)
-        sectionAdminOnly:Toggle("启用" .. userRoleName .. "跳跃", false, function(state) 
-            adminJumpEnabled = state
-            updateAdminHeartbeat()
-            Window:Notification(userRoleName .. "权限", "跳跃 " .. (state and "开启" or "关闭"), "Success", 2) 
+        sectionAdminOnly:Toggle("启用" .. userRoleName .. "亮度", false, function(state)
+            brightnessEnabled = state
+            updateBrightness()
+            Window:Notification(userRoleName .. "权限", "亮度调节 " .. (state and "已开启" or "已关闭"), "Success", 2)
         end)
     end
 
@@ -481,7 +439,6 @@ function loadMainScript()
 
     local function createESPForPlayer(player)
         if espCache[player] then return end
-        
         local function onCharacterAdded(character)
             local old = espCache[player]
             if old then
@@ -493,14 +450,11 @@ function loadMainScript()
                     end
                 end
             end
-            
             local humanoid = character:WaitForChild("Humanoid", 5)
             if not humanoid then return end
             local head = character:WaitForChild("Head", 5)
             if not head then return end
-
             local data = {connections = {}}
-            
             if espHighlightEnabled then
                 local highlight = Instance.new("Highlight")
                 highlight.Name = "ESP_Highlight"
@@ -511,7 +465,6 @@ function loadMainScript()
                 highlight.Parent = character
                 data.highlight = highlight
             end
-
             if showNames or showHealth then
                 local billboard = Instance.new("BillboardGui")
                 billboard.Name = "ESP_Billboard"
@@ -520,7 +473,6 @@ function loadMainScript()
                 billboard.StudsOffset = Vector3.new(0, 1.5, 0)
                 billboard.AlwaysOnTop = true
                 billboard.Parent = head
-
                 local label = Instance.new("TextLabel")
                 label.Size = UDim2.new(1,0,1,0)
                 label.BackgroundTransparency = 1
@@ -530,72 +482,49 @@ function loadMainScript()
                 label.TextSize = 10
                 label.TextScaled = false
                 label.Parent = billboard
-
                 local function update()
                     if humanoid and humanoid.Parent and head and head.Parent then
                         local textParts = {}
-                        if showNames then
-                            table.insert(textParts, getPlayerDisplayName(player))
-                        end
-                        if showHealth then
-                            table.insert(textParts, string.format("%d/%d", math.floor(humanoid.Health), math.floor(humanoid.MaxHealth)))
-                        end
+                        if showNames then table.insert(textParts, getPlayerDisplayName(player)) end
+                        if showHealth then table.insert(textParts, string.format("%d/%d", math.floor(humanoid.Health), math.floor(humanoid.MaxHealth))) end
                         label.Text = table.concat(textParts, "\n")
                         label.Visible = (#textParts > 0)
                     end
                 end
-
                 update()
                 table.insert(data.connections, humanoid.HealthChanged:Connect(update))
                 data.billboard = billboard
             end
-
             espCache[player] = data
         end
-
-        if player.Character then
-            onCharacterAdded(player.Character)
-        end
-
+        if player.Character then onCharacterAdded(player.Character) end
         local charConn = player.CharacterAdded:Connect(onCharacterAdded)
-        if espCache[player] then
-            espCache[player].charConnection = charConn
-        else
-            espCache[player] = {charConnection = charConn}
-        end
+        if espCache[player] then espCache[player].charConnection = charConn else espCache[player] = {charConnection = charConn} end
     end
 
     local function removeESP(player)
         local data = espCache[player]
         if not data then return end
         if data.charConnection then pcall(function() data.charConnection:Disconnect() end) end
-        if data.connections then
-            for _, conn in ipairs(data.connections) do
-                if conn then pcall(function() conn:Disconnect() end) end
-            end
-        end
+        if data.connections then for _, conn in ipairs(data.connections) do if conn then pcall(function() conn:Disconnect() end) end end end
         if data.highlight then pcall(function() data.highlight:Destroy() end) end
         if data.billboard then pcall(function() data.billboard:Destroy() end) end
         espCache[player] = nil
     end
 
     local function rebuildAllESP()
-        for player, _ in pairs(espCache) do
-            removeESP(player)
-        end
+        for player, _ in pairs(espCache) do removeESP(player) end
         espCache = {}
         if espHighlightEnabled or showNames or showHealth then
             for _, player in ipairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer then
-                    createESPForPlayer(player)
-                end
+                if player ~= LocalPlayer then createESPForPlayer(player) end
             end
             if playerAddedConn then playerAddedConn:Disconnect() end
             if playerRemovingConn then playerRemovingConn:Disconnect() end
             playerAddedConn = Players.PlayerAdded:Connect(function(player)
                 if player ~= LocalPlayer then createESPForPlayer(player) end
             end)
-            playerRemovingConn = Players.PlayerRemoving:Connect(function(player) removeESP(player) end)
+            playerRemovingConn = Players.PlayerRemoving:Connect(removeESP)
         else
             if playerAddedConn then playerAddedConn:Disconnect(); playerAddedConn = nil end
             if playerRemovingConn then playerRemovingConn:Disconnect(); playerRemovingConn = nil end
@@ -609,27 +538,18 @@ function loadMainScript()
     local function triggerEasterEgg()
         if easterEggTriggered then return end
         easterEggTriggered = true
-
         if LocalPlayer.Character then
             local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum.WalkSpeed = 40
-                hum.JumpPower = 40
-            end
+            if hum then hum.WalkSpeed = 40; hum.JumpPower = 40 end
         end
         LocalPlayer.CharacterAdded:Connect(function(char)
             local hum = char:WaitForChild("Humanoid", 5)
-            if hum then
-                hum.WalkSpeed = 40
-                hum.JumpPower = 40
-            end
+            if hum then hum.WalkSpeed = 40; hum.JumpPower = 40 end
         end)
-
         espHighlightEnabled = true
         showNames = true
         showHealth = true
         rebuildAllESP()
-
         infiniteJumpEnabled = true
     end
 
@@ -638,253 +558,133 @@ function loadMainScript()
 
     local function onProfileClick(name)
         easterEggClicked[name] = true
-        local clickedCount = 0
-        for _, _ in pairs(easterEggClicked) do
-            clickedCount = clickedCount + 1
-        end
-        if clickedCount >= totalProfileCount then
-            triggerEasterEgg()  -- 直接触发，无需密码
-        end
+        local count = 0
+        for _ in pairs(easterEggClicked) do count = count + 1 end
+        if count >= totalProfileCount then triggerEasterEgg() end
     end
 
-    sectionProfile:Image({Title = "付款", Subtitle = "款脚本作者", Description = {"身份：小款没吃饱", "Q群：1087878073", "我真求你了"}, Icon = "rbxassetid://72464253114782", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了付款的资料", "Info", 2) onProfileClick("付款")
+    sectionProfile:Image({Title = "付款", Subtitle = "款脚本作者", Description = {"身份：小款没吃饱", "Q群：1087878073", "我真求你了"}, Icon = "rbxassetid://72464253114782", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了付款的资料", "Info", 2) onProfileClick("付款")
 end})
     
-    sectionProfile:Image({Title = "中皮", Subtitle = "款脚本副作者", Description = {"身份：脚本哥", "无", "无"}, Icon = "rbxassetid://83204773411249", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了中皮的资料", "Info", 2) onProfileClick("中皮")
+    sectionProfile:Image({Title = "中皮", Subtitle = "款脚本副作者", Description = {"身份：脚本哥", "无", "无"}, Icon = "rbxassetid://83204773411249", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了中皮的资料", "Info", 2) onProfileClick("中皮")
 end})
     
-    sectionProfile:Image({Title = "风御", Subtitle = "殺脚本作者", Description = {"身份：疯子（刺猬）", "殺脚本主群819104139", "殺脚本副群1094790583"}, Icon = "rbxassetid://89381853103913", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了殺脚本作者的资料", "Info", 2) onProfileClick("风御")
+    sectionProfile:Image({Title = "风御", Subtitle = "殺脚本作者", Description = {"身份：疯子（刺猬）", "殺脚本主群819104139", "殺脚本副群1094790583"}, Icon = "rbxassetid://89381853103913", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了殺脚本作者的资料", "Info", 2) onProfileClick("风御")
 end})
     
-    sectionProfile:Image({Title = "小番", Subtitle = "管理员", Description = {"身份：番茄🍅", "小番牛逼", "xfnb666"}, Icon = "rbxassetid://138242046027117", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了小番的资料", "Info", 2) onProfileClick("小番")
+    sectionProfile:Image({Title = "小番", Subtitle = "管理员", Description = {"身份：番茄🍅", "小番牛逼", "xfnb666"}, Icon = "rbxassetid://138242046027117", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了小番的资料", "Info", 2) onProfileClick("小番")
 end})
     
-    sectionProfile:Image({Title = "奕夕", Subtitle = "测试人员", Description = {"身份：虚荣屠夫", "他们说我的饥饿是个问题", "事情变得开始有趣起来了"}, Icon = "rbxassetid://133051318196418", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了奕夕的资料", "Info", 2) onProfileClick("奕夕")
+    sectionProfile:Image({Title = "奕夕", Subtitle = "测试人员", Description = {"身份：虚荣屠夫", "他们说我的饥饿是个问题", "事情变得开始有趣起来了"}, Icon = "rbxassetid://133051318196418", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了奕夕的资料", "Info", 2) onProfileClick("奕夕")
 end})
     
-    sectionProfile:Image({Title = "只爱", Subtitle = "测试人员", Description = {"身份：奶烙", "小只爱", "3f"}, Icon = "rbxassetid://106483682176624", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了只爱的资料", "Info", 2) onProfileClick("只爱")
+    sectionProfile:Image({Title = "只爱", Subtitle = "测试人员", Description = {"身份：奶烙", "小只爱", "3f"}, Icon = "rbxassetid://106483682176624", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了只爱的资料", "Info", 2) onProfileClick("只爱")
 end})
     
-    sectionProfile:Image({Title = "我是Noob", Subtitle = "管理员", Description = {"身份：Noob", "我爱脚本", "玩脚本这一块"}, Icon = "rbxassetid://118200262618824", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了我是Noob的资料", "Info", 2) onProfileClick("我是Noob")
+    sectionProfile:Image({Title = "我是Noob", Subtitle = "管理员", Description = {"身份：Noob", "我爱脚本", "玩脚本这一块"}, Icon = "rbxassetid://118200262618824", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了我是Noob的资料", "Info", 2) onProfileClick("我是Noob")
 end})
     
-    sectionProfile:Image({Title = "cube", Subtitle = "管理员", Description = {"身份：披萨员", "pizza！", "立方体"}, Icon = "rbxassetid://104898690520306", IconColor = Color3.fromRGB(255, 255, 255), StrokeColor = Color3.fromRGB(255, 215, 0), Callback = function() Window:Notification("提示", "你点击了Pizza的资料", "Info", 2) onProfileClick("cube")
+    sectionProfile:Image({Title = "cube", Subtitle = "管理员", Description = {"身份：披萨员", "pizza！", "立方体"}, Icon = "rbxassetid://104898690520306", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了Pizza的资料", "Info", 2) onProfileClick("cube")
 end})
 
     local tabCommon = Window:Tab("通用", "85043685370431")
     local sectionCommon = tabCommon:Section("自身修改", {Y = "127278444393372", F = "127278444393372"}, true)
-
-    local aimEnabled = false
-    local speedEnabled = false
-    local speedValue = 16
-    local jumpEnabled = false
-    local jumpValue = 50
-    local featureHeartbeat = nil
-
+    
+    local aimEnabled, speedEnabled, jumpEnabled = false, false, false
+    local speedValue, jumpValue = 16, 50
+    local featureHeartbeat
     local function updateFeatureHeartbeat()
-        local needLoop = aimEnabled or speedEnabled or jumpEnabled
-        if needLoop and not featureHeartbeat then
+        local need = aimEnabled or speedEnabled or jumpEnabled
+        if need and not featureHeartbeat then
             featureHeartbeat = RunService.Heartbeat:Connect(function()
                 local char = LocalPlayer.Character
                 if not char then return end
-                local humanoid = char:FindFirstChildOfClass("Humanoid")
-                if not humanoid then return end
+                local hum = char:FindFirstChildOfClass("Humanoid")
                 local root = char:FindFirstChild("HumanoidRootPart")
-                if not root then return end
+                if not root or not hum then return end
                 if aimEnabled then
-                    local nearestHead, nearestDist = nil, math.huge
-                    for _, player in ipairs(Players:GetPlayers()) do
-                        if player ~= LocalPlayer then
-                            local otherChar = player.Character
-                            if otherChar then
-                                local head = otherChar:FindFirstChild("Head")
-                                if head then
-                                    local dist = (root.Position - head.Position).Magnitude
-                                    if dist < nearestDist then nearestDist = dist; nearestHead = head end
-                                end
-                            end
+                    local nearest, dist = nil, math.huge
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                            local d = (root.Position - p.Character.Head.Position).Magnitude
+                            if d < dist then dist = d; nearest = p.Character.Head end
                         end
                     end
-                    if nearestHead then
-                        root.CFrame = CFrame.lookAt(root.Position, Vector3.new(nearestHead.Position.X, root.Position.Y, nearestHead.Position.Z))
-                    end
+                    if nearest then root.CFrame = CFrame.lookAt(root.Position, Vector3.new(nearest.Position.X, root.Position.Y, nearest.Position.Z)) end
                 end
-                if speedEnabled then humanoid.WalkSpeed = speedValue else humanoid.WalkSpeed = 16 end
-                if jumpEnabled then humanoid.JumpPower = jumpValue else humanoid.JumpPower = 50 end
+                if speedEnabled then hum.WalkSpeed = speedValue else hum.WalkSpeed = 16 end
+                if jumpEnabled then hum.JumpPower = jumpValue else hum.JumpPower = 50 end
             end)
-        elseif not needLoop and featureHeartbeat then
+        elseif not need and featureHeartbeat then
             featureHeartbeat:Disconnect(); featureHeartbeat = nil
             local char = LocalPlayer.Character
             if char then
-                local humanoid = char:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    if not speedEnabled then humanoid.WalkSpeed = 16 end
-                    if not jumpEnabled then humanoid.JumpPower = 50 end
-                end
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum then hum.WalkSpeed = 16; hum.JumpPower = 50 end
             end
         end
     end
-
     LocalPlayer.CharacterAdded:Connect(function(char)
-        if speedEnabled then 
-            task.wait()
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.WalkSpeed = speedValue end 
-        end
-        if jumpEnabled then 
-            task.wait()
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.JumpPower = jumpValue end 
-        end
+        if speedEnabled then task.wait(); local hum = char:FindFirstChildOfClass("Humanoid"); if hum then hum.WalkSpeed = speedValue end end
+        if jumpEnabled then task.wait(); local hum = char:FindFirstChildOfClass("Humanoid"); if hum then hum.JumpPower = jumpValue end end
     end)
-
-    sectionCommon:Toggle("改速度", false, function(state) 
-        speedEnabled = state
-        updateFeatureHeartbeat()
-        Window:Notification("改速度", state and "已开启" or "已关闭", state and "Success" or "Info", 2) 
-    end)
-    sectionCommon:Slider("速度数值", 0, 500, 16, function(val) 
-        speedValue = val
-        if speedEnabled and LocalPlayer.Character then 
-            local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if hum then hum.WalkSpeed = val end 
-        end 
-    end)
-    sectionCommon:Toggle("改跳跃", false, function(state) 
-        jumpEnabled = state
-        updateFeatureHeartbeat()
-        Window:Notification("改跳跃", state and "已开启" or "已关闭", state and "Success" or "Info", 2) 
-    end)
-    sectionCommon:Slider("跳跃高度", 0, 500, 50, function(val) 
-        jumpValue = val
-        if jumpEnabled and LocalPlayer.Character then 
-            local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if hum then hum.JumpPower = val end 
-        end 
-    end)
+    
+    sectionCommon:Toggle("改速度", false, function(v) speedEnabled = v; updateFeatureHeartbeat()
+end)
+    
+    sectionCommon:Slider("速度数值", 0, 500, 16, function(v) speedValue = v; if speedEnabled and LocalPlayer.Character then local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"); if hum then hum.WalkSpeed = v end end end)
+    
+    sectionCommon:Toggle("改跳跃", false, function(v) jumpEnabled = v; updateFeatureHeartbeat()
+end)
+    
+    sectionCommon:Slider("跳跃高度", 0, 500, 50, function(v) jumpValue = v; if jumpEnabled and LocalPlayer.Character then local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"); if hum then hum.JumpPower = v end end end)
 
     local sectionCommon2 = tabCommon:Section("通用功能", {Y = "89197120299249", F = "89197120299249"}, true)
     
-    sectionCommon2:Button("款飞行", function() 
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/fhjhcfhhj/improved-sy/refs/heads/main/%E6%AE%BA%E9%A3%9E%E8%A1%8C.lua"))() 
+    sectionCommon2:Button("款飞行", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/fhjhcfhhj/improved-sy/refs/heads/main/%E6%AE%BA%E9%A3%9E%E8%A1%8C.lua"))()
 end)
 
     local sectionESP = tabCommon:Section("透视", {Y = "124176090938155", F = "124176090938155"}, true)
-    sectionESP:Toggle("绿色边框", false, function(state)
-        espHighlightEnabled = state
-        rebuildAllESP()
-        Window:Notification("透视", "绿色边框 " .. (state and "已开启" or "已关闭"), state and "Success" or "Info", 2)
-    end)
-    sectionESP:Toggle("用户名", true, function(state)
-        showNames = state
-        rebuildAllESP()
-        Window:Notification("透视", "用户名 " .. (state and "已开启" or "已关闭"), state and "Success" or "Info", 2)
-    end)
-    sectionESP:Toggle("血量", true, function(state)
-        showHealth = state
-        rebuildAllESP()
-        Window:Notification("透视", "血量 " .. (state and "已开启" or "已关闭"), state and "Success" or "Info", 2)
-    end)
+    sectionESP:Toggle("绿色边框", false, function(v) espHighlightEnabled = v; rebuildAllESP() end)
+    sectionESP:Toggle("用户名", true, function(v) showNames = v; rebuildAllESP() end)
+    sectionESP:Toggle("血量", true, function(v) showHealth = v; rebuildAllESP() end)
 
     local noclipEnabled = false
-    local noclipHeartbeat = nil
-    local originalCollidableParts = {}
-
-    local function enableNoclipForCharacter(character)
-        if not character then return end
-        local parts = {}
-        for _, part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide == true then
-                table.insert(parts, part)
-                part.CanCollide = false
-            end
-        end
-        originalCollidableParts[character] = parts
-    end
-
-    local function disableNoclipForCharacter(character)
-        local parts = originalCollidableParts[character]
-        if parts then
-            for _, part in ipairs(parts) do
-                if part and part.Parent then part.CanCollide = true end
-            end
-            originalCollidableParts[character] = nil
-        end
-    end
-
-    local function startNoclipLoop()
-        if noclipHeartbeat then return end
-        noclipHeartbeat = RunService.Heartbeat:Connect(function()
-            if noclipEnabled and LocalPlayer.Character then
-                local char = LocalPlayer.Character
-                local parts = originalCollidableParts[char]
-                if parts then
-                    for _, part in ipairs(parts) do
-                        if part and part.Parent then part.CanCollide = false end
-                    end
+    local noclipHeartbeat, originalCollidableParts
+    local function enableNoclip(char) if not char then return end; local parts = {}; for _, p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") and p.CanCollide then table.insert(parts, p); p.CanCollide = false end end; originalCollidableParts = parts end
+    local function disableNoclip(char) if originalCollidableParts then for _, p in ipairs(originalCollidableParts) do if p and p.Parent then p.CanCollide = true end end; originalCollidableParts = nil end end
+    sectionCommon2:Toggle("穿墙模式（永久）", false, function(v)
+        noclipEnabled = v
+        if v then
+            if LocalPlayer.Character then enableNoclip(LocalPlayer.Character) end
+            noclipHeartbeat = RunService.Heartbeat:Connect(function()
+                if noclipEnabled and LocalPlayer.Character and originalCollidableParts then
+                    for _, p in ipairs(originalCollidableParts) do if p and p.Parent then p.CanCollide = false end end
                 end
-            end
-        end)
-    end
-
-    local function stopNoclipLoop()
-        if noclipHeartbeat then noclipHeartbeat:Disconnect(); noclipHeartbeat = nil end
-    end
-
-    LocalPlayer.CharacterAdded:Connect(function(character)
-        if noclipEnabled then task.wait(); enableNoclipForCharacter(character) end
-    end)
-
-    sectionCommon2:Toggle("穿墙模式（永久）", false, function(state)
-        noclipEnabled = state
-        if state then
-            if LocalPlayer.Character then enableNoclipForCharacter(LocalPlayer.Character) end
-            startNoclipLoop()
-            Window:Notification("穿墙", "已开启", "Success", 2)
+            end)
         else
-            if LocalPlayer.Character then disableNoclipForCharacter(LocalPlayer.Character) end
-            stopNoclipLoop()
-            Window:Notification("穿墙", "已关闭", "Info", 2)
+            if LocalPlayer.Character then disableNoclip(LocalPlayer.Character) end
+            if noclipHeartbeat then noclipHeartbeat:Disconnect(); noclipHeartbeat = nil end
         end
     end)
 
     local invisibleEnabled = false
-    local function setCharacterInvisible(character, invisible)
-        if not character then return end
-        for _, part in ipairs(character:GetDescendants()) do 
-            if part:IsA("BasePart") then part.LocalTransparencyModifier = invisible and 1 or 0 end 
-        end
-    end
-    LocalPlayer.CharacterAdded:Connect(function(character) 
-        if invisibleEnabled then task.wait(); setCharacterInvisible(character, true) end 
-    end)
-    sectionCommon2:Toggle("隐身", false, function(state)
-        invisibleEnabled = state
-        if state then
-            if LocalPlayer.Character then setCharacterInvisible(LocalPlayer.Character, true) end
-            Window:Notification("隐身", "已开启", "Success", 2)
-        else
-            if LocalPlayer.Character then setCharacterInvisible(LocalPlayer.Character, false) end
-            Window:Notification("隐身", "已关闭", "Info", 2)
-        end
-    end)
+    local function setInvisible(char, inv) if char then for _, p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.LocalTransparencyModifier = inv and 1 or 0 end end end end
+    sectionCommon2:Toggle("隐身", false, function(v) invisibleEnabled = v; if LocalPlayer.Character then setInvisible(LocalPlayer.Character, v) end end)
+    LocalPlayer.CharacterAdded:Connect(function(char) if invisibleEnabled then task.wait(); setInvisible(char, true) end end)
 
     UserInputService.JumpRequest:Connect(function()
         if infiniteJumpEnabled and LocalPlayer.Character then
-            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end
+            local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
         end
     end)
-    
-    sectionCommon2:Toggle("无限跳", false, function(state) 
-        infiniteJumpEnabled = state
-        Window:Notification("无限跳", state and "已开启" or "已关闭", state and "Success" or "Info", 2) 
-    end)
-    
+    sectionCommon2:Toggle("无限跳", false, function(v) infiniteJumpEnabled = v end)
+
     sectionCommon2:Button("死亡笔记", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/dingding123hhh/tt/main/%E6%AD%BB%E4%BA%A1%E7%AC%94%E8%AE%B0%20(1).txt"))()
 end)
     
-    sectionCommon2:Button("自死", function() if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Health = 0 end
+    sectionCommon2:Button("自死", function() if LocalPlayer.Character then local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"); if hum then hum.Health = 0 end end 
 end)
     
     sectionCommon2:Button("踏空行走", function() loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float'))()
@@ -896,10 +696,8 @@ end)
     sectionCommon2:Button("铁拳", function() loadstring(game:HttpGet('https://raw.githubusercontent.com/0Ben1/fe/main/obf_rf6iQURzu1fqrytcnLBAvW34C9N55kS9g9G3CKz086rC47M6632sEd4ZZYB0AYgV.lua.txt'))()
 end)
     
-    sectionCommon2:Toggle("反挂机", false, function(state)
-        if state then loadstring(game:HttpGet("https://pastebin.com/raw/9fFu43FF"))(); Window:Notification("反挂机", "已开启", "Success", 2)
-        else Window:Notification("反挂机", "关闭需要重新加入游戏", "Info", 2) end
-    end)
+    sectionCommon2:Toggle("反挂机", false, function(v) if v then loadstring(game:HttpGet("https://pastebin.com/raw/9fFu43FF"))() end
+end)
     
     sectionCommon2:Button("汉化", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Wlzhmaa/UWU/refs/heads/main/Chinese%20translation"))()
 end)
@@ -909,48 +707,31 @@ end)
 
     local sectionAim = tabCommon:Section("自瞄区域", {Y = "134293959597321", F = "134293959597321"}, true)
     
-    sectionAim:Button("阿尔宙斯同款自瞄", function() 
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/dingding123hhh/sgbs/main/%E4%B8%81%E4%B8%81%20%E6%B1%89%E5%8C%96%E8%87%AA%E7%9E%84.txt"))()
-        Window:Notification("自瞄区域", "阿尔宙斯自瞄已加载", "Success", 2) 
-    end)
+    sectionAim:Button("阿尔宙斯同款自瞄", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/dingding123hhh/sgbs/main/%E4%B8%81%E4%B8%81%20%E6%B1%89%E5%8C%96%E8%87%AA%E7%9E%84.txt"))()
+end)
     
-    sectionAim:Toggle("自瞄（瞄准头部）", false, function(state) 
-        aimEnabled = state
-        updateFeatureHeartbeat()
-        Window:Notification("自瞄区域", "自瞄 " .. (state and "已开启" or "已关闭"), "Success", 2) 
-    end)
+    sectionAim:Toggle("自瞄（瞄准头部）", false, function(v) aimEnabled = v; updateFeatureHeartbeat()
+end)
 
     local sectionFling = tabCommon:Section("甩飞区域", {Y = "113899846067098", F = "113899846067098"}, true)
     local antiKnockbackEnabled = false
-    local antiKnockbackConnection = nil
-    sectionFling:Toggle("防甩飞（无碰撞箱）", false, function(state)
-        antiKnockbackEnabled = state
-        if state then
-            if LocalPlayer.Character then
-                local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if root then root.CanCollide = false end
-            end
-            antiKnockbackConnection = LocalPlayer.CharacterAdded:Connect(function(char)
-                if not antiKnockbackEnabled then antiKnockbackConnection:Disconnect(); return end
-                local root = char:WaitForChild("HumanoidRootPart")
-                root.CanCollide = false
-            end)
-            Window:Notification("防甩飞", "已开启（删除碰撞箱）", "Success", 2)
+    sectionFling:Toggle("防甩飞（无碰撞箱）", false, function(v)
+        antiKnockbackEnabled = v
+        if v then
+            if LocalPlayer.Character then local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart"); if root then root.CanCollide = false end end
+            LocalPlayer.CharacterAdded:Connect(function(char) if antiKnockbackEnabled then local root = char:WaitForChild("HumanoidRootPart"); root.CanCollide = false end end)
         else
-            if antiKnockbackConnection then antiKnockbackConnection:Disconnect(); antiKnockbackConnection = nil end
-            if LocalPlayer.Character then
-                local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if root then root.CanCollide = true end
-            end
-            Window:Notification("防甩飞", "已关闭", "Info", 2)
+            if LocalPlayer.Character then local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart"); if root then root.CanCollide = true end end
         end
     end)
-    sectionFling:Button("甩飞(先开飞行再开)", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/dingding123hhh/tt/main/%E6%97%8B%E8%BD%AC.lua"))() end)
-    sectionFling:Toggle("甩飞所有人", false, function(state)
-        if state then loadstring(game:HttpGet("https://pastebin.com/raw/zqyDSUWX"))(); Window:Notification("甩飞", "已开启", "Success", 2)
-        else Window:Notification("甩飞", "关闭需要重新加入游戏", "Info", 2) end
-    end)
+    
+    sectionFling:Button("甩飞(先开飞行再开)", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/dingding123hhh/tt/main/%E6%97%8B%E8%BD%AC.lua"))()
+end)
+    
+    sectionFling:Toggle("甩飞所有人", false, function(v) if v then loadstring(game:HttpGet("https://pastebin.com/raw/zqyDSUWX"))() end 
+end)
 
+    -- ==================== 娱乐(FE) ====================
     local tabFun = Window:Tab("娱乐(FE)", "117911709021357")
     local sectionFun = tabFun:Section("FE以及娱乐功能", {Y = "113580079129703", F = "113580079129703"}, true)
     
@@ -965,13 +746,13 @@ end)
     
     sectionFun:Button("飞檐走壁", function() loadstring(game:HttpGet("https://pastebin.com/raw/zXk4Rq2r"))()
 end)
-
+    
     local sectionFun2 = tabFun:Section("动作类", {Y = "101403657260817", F = "101403657260817"}, true)
     
     sectionFun2:Button("动作", function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-7yd7-I-Emote-Script-48024"))()
 end)
     
-    sectionFun2:Button("SCP-096", function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-FE-SCP-096-36948"))() 
+    sectionFun2:Button("SCP-096", function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-FE-SCP-096-36948"))()
 end)
     
     sectionFun2:Button("变车", function() loadstring(game:HttpGet("https://pastefy.app/UqDEIOpO/raw"))()
@@ -980,33 +761,27 @@ end)
     sectionFun2:Button("撸管R15", function() loadstring(game:HttpGet("https://pastefy.app/YZoglOyJ/raw"))()
 end)
     
-    sectionFun2:Button("撸管R6", function() loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))() 
+    sectionFun2:Button("撸管R6", function() loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))()
 end)
     
     sectionFun2:Button("打人", function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-THE-REAL-dropkick-177199"))()
 end)
 
     local tabMusic = Window:Tab("音乐", "98485449573808")
-    local currentSound = nil
-    local function stopSound()
-        if currentSound then currentSound:Stop(); currentSound:Destroy(); currentSound = nil end
-    end
+    local currentSound
+    local function stopSound() if currentSound then currentSound:Stop(); currentSound:Destroy(); currentSound = nil end end
     local function playSoundById(id, notifyName)
         stopSound()
-        if not id or id == "" then Window:Notification("音乐", "无效的音乐ID", "Error", 2) return end
+        if not id or id == "" then return end
         currentSound = Instance.new("Sound")
         currentSound.SoundId = id
         currentSound.Volume = 1
         currentSound.Parent = LocalPlayer:WaitForChild("PlayerGui")
         currentSound:Play()
-        local soundRef = currentSound
-        soundRef.Ended:Connect(function()
-            if currentSound == soundRef then currentSound = nil end
-            soundRef:Destroy()
-        end)
+        local ref = currentSound
+        ref.Ended:Connect(function() if currentSound == ref then currentSound = nil end ref:Destroy() end)
         if notifyName then Window:Notification("音乐", "正在播放：" .. notifyName, "Success", 3) end
     end
-
     local sectionHall = tabMusic:Section("音乐大厅", {Y = "102502304372289", F = "102502304372289"}, true)
     local musicLibrary = {
         {name = "雨爱", id = "rbxassetid://79277371759525"},
@@ -1019,33 +794,15 @@ end)
     local hallNames = {}
     for _, m in ipairs(musicLibrary) do table.insert(hallNames, m.name) end
     sectionHall:Dropdown("🎵 选择音乐", hallNames, function(choice) selectedHall = choice end)
-    sectionHall:Button("▶ 播放", function()
-        for _, m in ipairs(musicLibrary) do if m.name == selectedHall then playSoundById(m.id, m.name) break end end
-    end)
-    sectionHall:Button("⏸ 暂停", function()
-        if currentSound and currentSound.IsPlaying then currentSound:Pause(); Window:Notification("音乐", "已暂停", "Info", 2)
-        else Window:Notification("音乐", "没有正在播放的音乐", "Error", 2) end
-    end)
-    sectionHall:Button("▶ 继续", function()
-        if currentSound and not currentSound.IsPlaying then currentSound:Resume(); Window:Notification("音乐", "已继续", "Success", 2)
-        elseif currentSound then Window:Notification("音乐", "音乐正在播放中", "Info", 2)
-        else Window:Notification("音乐", "没有暂停的音乐", "Error", 2) end
-    end)
-
+    sectionHall:Button("▶ 播放", function() for _, m in ipairs(musicLibrary) do if m.name == selectedHall then playSoundById(m.id, m.name) break end end end)
+    sectionHall:Button("⏸ 暂停", function() if currentSound and currentSound.IsPlaying then currentSound:Pause() end end)
+    sectionHall:Button("▶ 继续", function() if currentSound and not currentSound.IsPlaying then currentSound:Resume() end end)
     local customMusicId = ""
     local sectionCustomMusic = tabMusic:Section("音乐ID", {Y = "92109853056999", F = "92109853056999"}, true)
-    sectionCustomMusic:Textbox("输入音乐ID（纯数字）", "例如：12345678", function(val) customMusicId = val end)
+    sectionCustomMusic:Textbox("输入音乐ID（纯数字）", "例如：12345678", function(v) customMusicId = v end)
     sectionCustomMusic:Button("播放自定义音乐", function() playSoundById("rbxassetid://" .. customMusicId, "自定义音乐") end)
-    sectionCustomMusic:Button("暂停音乐", function()
-        if currentSound and currentSound.IsPlaying then currentSound:Pause(); Window:Notification("音乐", "已暂停", "Info", 2)
-        else Window:Notification("音乐", "没有正在播放的音乐", "Error", 2) end
-    end)
-    sectionCustomMusic:Button("继续播放", function()
-        if currentSound and not currentSound.IsPlaying then currentSound:Resume(); Window:Notification("音乐", "已继续", "Success", 2)
-        elseif currentSound then Window:Notification("音乐", "音乐正在播放中", "Info", 2)
-        else Window:Notification("音乐", "没有暂停的音乐", "Error", 2) end
-    end)
-
+    sectionCustomMusic:Button("暂停音乐", function() if currentSound and currentSound.IsPlaying then currentSound:Pause() end end)
+    sectionCustomMusic:Button("继续播放", function() if currentSound and not currentSound.IsPlaying then currentSound:Resume() end end)
     local sectionBattle = tabMusic:Section("一些梗音效", {Y = "139719142899671", F = "139719142899671"}, true)
     local battleSounds = {
         {name = "乌鲁鲁", id = "rbxassetid://80701295792893"},
@@ -1056,18 +813,9 @@ end)
     local battleNames = {}
     for _, s in ipairs(battleSounds) do table.insert(battleNames, s.name) end
     sectionBattle:Dropdown("🎵 选择梗音效", battleNames, function(choice) selectedBattle = choice end)
-    sectionBattle:Button("▶ 播放", function()
-        for _, s in ipairs(battleSounds) do if s.name == selectedBattle then playSoundById(s.id, s.name) break end end
-    end)
-    sectionBattle:Button("⏸ 暂停", function()
-        if currentSound and currentSound.IsPlaying then currentSound:Pause(); Window:Notification("音效", "已暂停", "Info", 2)
-        else Window:Notification("音效", "没有正在播放的音效", "Error", 2) end
-    end)
-    sectionBattle:Button("▶ 继续", function()
-        if currentSound and not currentSound.IsPlaying then currentSound:Resume(); Window:Notification("音效", "已继续", "Success", 2)
-        elseif currentSound then Window:Notification("音效", "音效正在播放中", "Info", 2)
-        else Window:Notification("音效", "没有暂停的音效", "Error", 2) end
-    end)
+    sectionBattle:Button("▶ 播放", function() for _, s in ipairs(battleSounds) do if s.name == selectedBattle then playSoundById(s.id, s.name) break end end end)
+    sectionBattle:Button("⏸ 暂停", function() if currentSound and currentSound.IsPlaying then currentSound:Pause() end end)
+    sectionBattle:Button("▶ 继续", function() if currentSound and not currentSound.IsPlaying then currentSound:Resume() end end)
 
     -- ==================== 其他脚本 ====================
     local tabOtherScripts = Window:Tab("其他脚本", "115947871467249")
@@ -1084,28 +832,26 @@ end)
     
     sectionOther:Button("(殺)通用", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-X/_Hub_/refs/heads/X/sha.lua"))()
 end)
-
     local sectionSpecial = tabOtherScripts:Section("殺脚本", {Y = "84848865030433", F = "84848865030433"}, true)
     
     sectionSpecial:Button("(殺)被遗弃", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-X/Max/refs/heads/X/fsk.lua"))()
 end)
     
-    sectionSpecial:Button("(殺)成果记忆", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-X/Max/refs/heads/X/OM.lua"))()
+    sectionSpecial:Button("(殺)成果记忆", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-X/Max/refs/heads/X/OM.lua"))() 
 end)
     
     sectionSpecial:Button("(殺)撕咬之夜", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-X/Max/refs/heads/X/BBN.lua"))()
 end)
     
-    sectionSpecial:Button("(殺)死亡之死", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-X/Max/refs/heads/X/DOD.lua"))()
+    sectionSpecial:Button("(殺)死亡之死", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/FengYu-X/Max/refs/heads/X/DOD.lua"))() 
 end)
 
     local tabConfig = Window:Tab("配置管理")
     local sectionConfig = tabConfig:Section("配置设置")
     Window.CurrentConfig = "None"
     local ConfigName = ""
-    sectionConfig:Textbox("配置名字", "输入配置名", function(val) ConfigName = val end)
-    local dropdownObj
-    local ConfigPaths = {}
+    sectionConfig:Textbox("配置名字", "输入配置名", function(v) ConfigName = v end)
+    local dropdownObj, ConfigPaths = nil, {}
     local function RefreshConfigs()
         pcall(function()
             if not isfolder(Window.RootFolder) then makefolder(Window.RootFolder) end
@@ -1122,7 +868,7 @@ end)
         ConfigPaths = newPaths
         if dropdownObj then pcall(function() dropdownObj.Refresh(newList) end) end
     end
-    dropdownObj = sectionConfig:Dropdown("选择配置", {"None"}, function(val) Window.CurrentConfig = val end)
+    dropdownObj = sectionConfig:Dropdown("选择配置", {"None"}, function(v) Window.CurrentConfig = v end)
     sectionConfig:Button("刷新列表", RefreshConfigs)
     sectionConfig:Button("保存配置", function()
         if ConfigName == "" then Window:Notification("保存错误", "请填写配置名", "Error", 2) return end
@@ -1134,7 +880,6 @@ end)
         if Window.CurrentConfig == "" or Window.CurrentConfig == "None" then Window:Notification("加载错误", "请先选择一个配置", "Error", 2) return end
         local name = Window.CurrentConfig
         local path = ConfigPaths[name] or (Window.ConfigFolder .. "/" .. name .. ".json")
-        Window:Notification("正在加载", "正在载入 " .. name, "Info", 2)
         local ok = library:LoadConfig(path)
         if ok then Window:Notification("加载成功", name .. " 已加载", "Success", 2)
         else Window:Notification("错误", "加载失败", "Error", 2) end
@@ -1174,13 +919,8 @@ end)
     for display, _ in pairs(rainbowTypeMap) do table.insert(rainbowTypeDisplay, display) end
     sectionUI:Dropdown("边框类型", rainbowTypeDisplay, function(val) library:SetRainbowType(rainbowTypeMap[val]) end)
     local themeMap = {
-        ["暗色"] = "Dark",
-        ["白色"] = "White",
-        ["紫色"] = "Purple",
-        ["蓝色"] = "Blue",
-        ["红色"] = "Red",
-        ["黄色"] = "Yellow",
-        ["绿色"] = "Green"
+        ["暗色"] = "Dark", ["白色"] = "White", ["紫色"] = "Purple",
+        ["蓝色"] = "Blue", ["红色"] = "Red", ["黄色"] = "Yellow", ["绿色"] = "Green"
     }
     local themeDisplay = {}
     for display, _ in pairs(themeMap) do table.insert(themeDisplay, display) end
