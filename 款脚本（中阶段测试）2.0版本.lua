@@ -171,7 +171,8 @@ function loadMainScript(preloadedLib)
         "NOOOPLSDONTletme444", 
         "aa1360051",
         "FengY3", 
-        "FengYu303", 
+        "FengYu303",
+        "KuaishouKuan2", 
         "ma107133", 
         "DPYfish"
     }
@@ -539,7 +540,7 @@ function loadMainScript(preloadedLib)
 
     local easterEggTriggered = false
     local easterEggClicked = {}
-    local totalProfileCount = 8
+    local totalProfileCount = 9
 
     local function triggerEasterEgg()
         if easterEggTriggered then return end
@@ -578,7 +579,10 @@ end})
     sectionProfile:Image({Title = "风御", Subtitle = "殺脚本作者", Description = {"身份：疯子（刺猬）", "殺脚本主群819104139", "殺脚本副群1094790583"}, Icon = "rbxassetid://89381853103913", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了殺脚本作者的资料", "Info", 2) onProfileClick("风御")
 end})
     
-    sectionProfile:Image({Title = "小番", Subtitle = "管理员", Description = {"身份：番茄🍅", "小番牛逼", "xfnb666"}, Icon = "rbxassetid://138242046027117", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了小番的资料", "Info", 2) onProfileClick("小番")
+    sectionProfile:Image({Title = "小番", Subtitle = "管理员", Description = {"身份：番茄🍅", "小番牛逼", "Xiaofannb666"}, Icon = "rbxassetid://138242046027117", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了小番的资料", "Info", 2) onProfileClick("小番")
+end})
+    
+    sectionProfile:Image({Title = "小汪", Subtitle = "管理员", Description = {"身份：小汪", "小汪牛逼", "Xiaowangnb666"}, Icon = "rbxassetid://111514022930794", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了小汪的资料", "Info", 2) onProfileClick("小汪")
 end})
     
     sectionProfile:Image({Title = "奕夕", Subtitle = "测试人员", Description = {"身份：虚荣屠夫", "他们说我的饥饿是个问题", "事情变得开始有趣起来了"}, Icon = "rbxassetid://133051318196418", IconColor = Color3.fromRGB(255,255,255), StrokeColor = Color3.fromRGB(255,215,0), Callback = function() Window:Notification("提示", "你点击了奕夕的资料", "Info", 2) onProfileClick("奕夕")
