@@ -830,6 +830,7 @@ end)
         {name = "鸟之诗", id = "rbxassetid://113665010217108"},
         {name = "唯一", id = "rbxassetid://138570939058838"},
         {name = "azure与Two time", id = "rbxassetid://77715601943266"},
+        {name = "最好的我", id = "rbxassetid://75047041148646"},
     }
     local selectedHall = musicLibrary[1].name
     local hallNames = {}
